@@ -24,9 +24,8 @@ server.get("/assets/:type/:name", function(req, res) {
 
 });
 
-  
 // http:/X.X.X.X:YYYY/* ==> ./public/index.html
-server.get("*", function(req, res) {
+server.get("/", function(req, res) {
     
     res.sendFile(path.join(__dirname, "../public/index.html"));
   });

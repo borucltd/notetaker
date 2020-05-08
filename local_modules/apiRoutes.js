@@ -5,23 +5,34 @@ const path = require('path');
 const fs = require('fs');
 
 // Our database
-const dbFile = path.join(__dirname, "../db/db,json");
+const dbFile = path.join(__dirname, "../db/db.json");
+
 
 function readDatabase(req, res, next) {
 
+  console.log(dbFile);
+
   // read database
   fs.readFile(dbFile, (err, data) => {
+    
+    if (err) {
+     console.log(`Database reading error ${err}`);
+     throw err;
+    }
 
-    if (err) throw err;
-    console.log("Reading database...");
+      // we need to parse raw data into JSON
+    let records = JSON.parse(data);
+    console.log(records);
+    res.json(records);   
+    
   });
   
-  // go to the next function and pass database
-  next(data)
+
+  
 }
 
 function displayDatabase(req, res) {
-  console.log('CB1');
+  console.log(content);
 }
 
 
@@ -33,18 +44,20 @@ function displayDatabase(req, res) {
 function apiRoutes(server) {
 
   // GET `/api/notes` - Should read the `db.json` file and return all saved notes as JSON.
-  server.get("/api/notes", [readDatabase, displayDatabase]);
+  server.get("/api/notes", [readDatabase]);
    
- 
-  //res.json(tableData);
+
+ // server.get("/api/notes", function(req, res) {
+
+   
+   //  console.log("hhhere");
+    //res.json("{name}");
+  //});
 
 }
 
+ 
+
+
 // module exports funciton htmlRoutes as object
 module.exports = apiRoutes
-
-
-
-
-
-
