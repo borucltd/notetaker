@@ -4,60 +4,60 @@
 const path = require('path');
 const fs = require('fs');
 
-// Our database
+// Reference to our database
 const dbFile = path.join(__dirname, "../db/db.json");
+const inMemoryDb = {};
 
-
-function readDatabase(req, res, next) {
+// Callback which reads database
+function readDatabase(req, res) {
 
   console.log(dbFile);
 
   // read database
+  console.log(`INFO: reading database ${dbFile}`);
   fs.readFile(dbFile, (err, data) => {
     
     if (err) {
-     console.log(`Database reading error ${err}`);
+     console.log(`ERROR: Database reading error ${err}`);
      throw err;
     }
 
-      // we need to parse raw data into JSON
+    // we need to parse raw data into JSON
     let records = JSON.parse(data);
     console.log(records);
     res.json(records);   
     
-  });
-  
-
-  
+  });  
 }
 
-function displayDatabase(req, res) {
-  console.log(content);
+// Callback which writes to database
+function addToDatabase(req, res, next) {
+
+  console.log(dbFile);
+  console.log(req.body);
 }
 
+// Callback which writes to database
+function deleteFromDatabase(req, res,next) {
 
-
-
-
+  console.log(req.body);
+}
 
 // Function which does the routing for API requests
 function apiRoutes(server) {
 
   // GET `/api/notes` - Should read the `db.json` file and return all saved notes as JSON.
-  server.get("/api/notes", [readDatabase]);
+  server.get("/api/notes", readDatabase);
    
+  // POST `/api/notes` - Should receive a new note to save on the request body, 
+  // add it to the `db.json` file, and then return the new note to the client.
+  server.post("/api/notes", [addToDatabase] );
 
- // server.get("/api/notes", function(req, res) {
-
-   
-   //  console.log("hhhere");
-    //res.json("{name}");
-  //});
+  // * DELETE `/api/notes/:id` - Should receive a query parameter containing the id of a note to delete.
+  server.delete("/api/notes/*", [deleteFromDatabase] );
 
 }
 
- 
-
-
 // module exports funciton htmlRoutes as object
 module.exports = apiRoutes
+

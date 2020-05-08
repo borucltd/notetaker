@@ -32,7 +32,6 @@ htmlRoutes(server);
 // API routing, take object apiRoutes (which is a function) and run with argument server
 apiRoutes(server);
 
-
 // =============================================================================
 // LISTENER
 // =============================================================================
