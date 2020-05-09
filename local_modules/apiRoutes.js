@@ -66,10 +66,29 @@ function addToDatabase(req, res) {
 }
 
 // Callback which writes to database
-function deleteFromDatabase(req, res,next) {
+function deleteFromDatabase(req, res) {
 
-  console.log(req.body);
-  res.json(true);
+
+  console.log("============================== START");
+  console.log(`INFO: reading database ${dbFile}`);
+  const data = fs.readFileSync(dbFile);
+  const id = parseInt(req.params.id);
+  const records = JSON.parse(data);
+  
+  for (let item of records) {
+    if (item.id == id ) {
+
+        console.log("INFO: deleting note id " + item.id); 
+        const removed = records.splice(id,1);
+        console.log("INFO: deleted note " + JSON.stringify(removed)); 
+        
+        console.log(`INFO: updating database ${dbFile}`);
+        fs.writeFileSync(dbFile, JSON.stringify(records))
+        res.json(req.body); 
+        console.log("============================== STOP");
+        break;     
+      }   
+  }
 }
 
 // Function which does the routing for API requests
@@ -83,7 +102,7 @@ function apiRoutes(server) {
   server.post("/api/notes", addToDatabase );
 
   // * DELETE `/api/notes/:id` - Should receive a query parameter containing the id of a note to delete.
-  server.delete("/api/notes/*", [deleteFromDatabase] );
+  server.delete("/api/notes/:id", deleteFromDatabase );
 
 }
 

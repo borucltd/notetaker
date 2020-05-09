@@ -16,7 +16,7 @@ const apiRoutes = require('./local_modules/apiRoutes');
 // ===========================================================================
 
 const server = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 5000;
 
 // middleware functions
 server.use(express.urlencoded({ extended: true }));
