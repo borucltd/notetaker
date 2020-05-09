@@ -3,36 +3,31 @@
 // ===========================================================================
 const path = require('path');
 const fs = require('fs');
+const moment = require('moment');
 
 // Reference to our database
 const dbFile = path.join(__dirname, "../db/db.json");
 
 
 // Callback which reads database
-function readDatabase(req, res, next) {
-
-  console.log(dbFile);
+function readDatabase(req, res) {
 
   // read database
   console.log(`INFO: reading database ${dbFile}`);
-  fs.readFile(dbFile, (err, data) => {
-    
-    if (err) {
-     console.log(`ERROR: Database reading error ${err}`);
-     throw err;
-    }
-   
-    // we need to parse raw data into JSON
-    let records = JSON.parse(data);
-    res.json(records);   
-    
-  });  
+  const data = fs.readFileSync(dbFile);
+  
+  let records = JSON.parse(data);
+
+  // we send back the whole database
+  res.json(records);   
 }
 
 // Callback which writes to database
 function addToDatabase(req, res) {
   
   console.log(`INFO: reading database ${dbFile}`);
+
+  // read database
   fs.readFile(dbFile, (err, data) => {
     
     if (err) {
@@ -43,14 +38,14 @@ function addToDatabase(req, res) {
     // we need to parse raw data into JSON
     let records = JSON.parse(data);
         
-    // add "id" attribute to a new record
-    req.body.id = records.length;
+    // add "id" attribute to a new record - unix timestamp
+    req.body.id = moment().unix(Number);
     
-    // add new record to existing ones
+    // add new record (from HTTP request) to the existing ones
     records.push(req.body);
 
     // save to a file
-    console.log(`INFO: adding to database ${dbFile}`);
+    console.log(`INFO: writing to database ${dbFile}`);
     fs.writeFile(dbFile, JSON.stringify(records) , (err) => {
       
       if (err) {
@@ -58,37 +53,53 @@ function addToDatabase(req, res) {
        throw err;
       }
       
-      // once database is updated we are sending new request back to the client
+      // once database is updated we are sending back the same data we received
       res.json(req.body); 
     });
   });   
-
 }
 
-// Callback which writes to database
+// Callback which deletes and write to database
 function deleteFromDatabase(req, res) {
 
-
-  console.log("============================== START");
   console.log(`INFO: reading database ${dbFile}`);
-  const data = fs.readFileSync(dbFile);
-  const id = parseInt(req.params.id);
-  const records = JSON.parse(data);
-  
-  for (let item of records) {
-    if (item.id == id ) {
 
-        console.log("INFO: deleting note id " + item.id); 
-        const removed = records.splice(id,1);
-        console.log("INFO: deleted note " + JSON.stringify(removed)); 
+  // sync read the database
+  const data = fs.readFileSync(dbFile);
+  const records = JSON.parse(data);
+
+  // read id from the DELETE request
+  const id = parseInt(req.params.id);
+
+  // empty array and i a helper
+  const new_records = [];
+  let i =0;
+
+  // iterate over database records
+  for (let item of records) {
+
+    // compare id of database record and id of request
+    if (parseInt(item.id) === id ) {
+
+      // we simply don't add note to new_records array
+      console.log("INFO: deleting note id " + item.id); 
         
-        console.log(`INFO: updating database ${dbFile}`);
-        fs.writeFileSync(dbFile, JSON.stringify(records))
-        res.json(req.body); 
-        console.log("============================== STOP");
-        break;     
-      }   
+    } else {
+
+      // push record to new array
+      new_records[i] = item; 
+      i++;
+
+    } 
   }
+
+  // write the whole database
+  console.log(`INFO: writing to database ${dbFile}`);
+  fs.writeFileSync(dbFile, JSON.stringify(new_records))
+
+  // this is the reponse for DELETE request without any data
+  res.end();   
+
 }
 
 // Function which does the routing for API requests
