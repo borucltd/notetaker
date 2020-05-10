@@ -5,6 +5,11 @@ const path = require('path');
 const fs = require('fs');
 const moment = require('moment');
 
+// ===========================================================================
+// MODULES local
+// ===========================================================================
+const logger = require('./logger.js')
+
 // Reference to our database
 const dbFile = path.join(__dirname, "../db/db.json");
 
@@ -13,7 +18,7 @@ const dbFile = path.join(__dirname, "../db/db.json");
 function readDatabase(req, res) {
 
   // read database
-  console.log(`INFO: reading database ${dbFile}`);
+  logger("log",`Reading database ${dbFile}`); 
   const data = fs.readFileSync(dbFile);
   
   let records = JSON.parse(data);
@@ -25,13 +30,13 @@ function readDatabase(req, res) {
 // Callback which writes to database
 function addToDatabase(req, res) {
   
-  console.log(`INFO: reading database ${dbFile}`);
+  logger("log",`Reading database ${dbFile}`); 
 
   // read database
   fs.readFile(dbFile, (err, data) => {
     
     if (err) {
-     console.log(`ERROR: Database reading error ${err}`);
+     logger("error",`Database reading error ${err}`); 
      throw err;
     }
    
@@ -45,11 +50,11 @@ function addToDatabase(req, res) {
     records.push(req.body);
 
     // save to a file
-    console.log(`INFO: writing to database ${dbFile}`);
+    logger("log",`Writing to database ${dbFile}`); 
     fs.writeFile(dbFile, JSON.stringify(records) , (err) => {
       
       if (err) {
-       console.log(`ERROR: Database writing error ${err}`);
+       logger("error",`Database writing error ${err}`); 
        throw err;
       }
       
@@ -62,7 +67,7 @@ function addToDatabase(req, res) {
 // Callback which deletes and write to database
 function deleteFromDatabase(req, res) {
 
-  console.log(`INFO: reading database ${dbFile}`);
+  logger("log",`Reading database ${dbFile}`); 
 
   // sync read the database
   const data = fs.readFileSync(dbFile);
@@ -82,8 +87,8 @@ function deleteFromDatabase(req, res) {
     if (parseInt(item.id) === id ) {
 
       // we simply don't add note to new_records array
-      console.log("INFO: deleting note id " + item.id); 
-        
+      logger("log",`Deleting note id " + ${item.id}`); 
+              
     } else {
 
       // push record to new array
@@ -94,7 +99,7 @@ function deleteFromDatabase(req, res) {
   }
 
   // write the whole database
-  console.log(`INFO: writing to database ${dbFile}`);
+  logger("log",`Writing to database ${dbFile}`); 
   fs.writeFileSync(dbFile, JSON.stringify(new_records))
 
   // this is the reponse for DELETE request without any data
