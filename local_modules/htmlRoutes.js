@@ -33,7 +33,7 @@ server.get("/assets/:type/:name", function(req, res) {
 });
 
 // anything else will return index.html
-server.get("*", function(req, res) {
+server.get("/*", function(req, res) {
     
     logger("log",`Accessing ${req.url}`); 
     res.sendFile(path.join(__dirname, "../public/index.html"));
