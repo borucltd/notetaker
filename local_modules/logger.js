@@ -10,8 +10,8 @@ const moment = require('moment');
 // LOG FILES global
 // ===========================================================================
 
-const accessLog = path.join(__dirname, "../logs/access.log");
-const errorLog = path.join(__dirname, "../logs/error.log");
+const accessLog = path.join(__dirname, "./logs/access.log");
+const errorLog = path.join(__dirname, "./logs/error.log");
 
 
 function logger(type,message) {
